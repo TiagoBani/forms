@@ -9,10 +9,14 @@ export class TemplateFormComponent implements OnInit {
 
   usuario: any = {
     nome: null,
-    email: null
+    email: null,
   };
 
   constructor() { }
+
+  aplicaCssNome() {
+
+  }
 
   ngOnInit() {
   }
