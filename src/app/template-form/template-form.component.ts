@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
+import { ConsultCepService } from '../shared/service/consult-cep.service';
+
 @Component({
   selector: 'app-template-form',
   templateUrl: './template-form.component.html',
@@ -26,7 +28,8 @@ export class TemplateFormComponent implements OnInit, OnDestroy {
   };
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private cepService: ConsultCepService
   ) { }
 
   verificaValidTouched(campo) {
@@ -36,23 +39,11 @@ export class TemplateFormComponent implements OnInit, OnDestroy {
   consultaCEP(cep, form) {
     cep = cep.replace(/\D/g, '');
 
-    if (cep !== '') {
-      const validacep = /^[0-9]{8}$/;
-
-      this.resetaForm(form);
-
-      if (validacep.test(cep) ) {
-        /*
-        this.http.get(`https://viacep.com.br/ws/${cep}/json/`).subscribe(
-          data => this.populaDadosForm(data, form ),
-          error => console.log(error)
-        );
-        */
-       this.http.get(`https://httpbin.org/get`).subscribe(
-         data => console.log(data),
-         error => console.log(error)
-       );
-      }
+    if (cep !== '' && cep != null) {
+      this.cepService.consultaCEP(cep).subscribe(
+        data => this.populaDadosForm(data, form ),
+        error => console.log(error)
+      );
     }
   }
 
@@ -104,12 +95,15 @@ export class TemplateFormComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
   }
-  onSubmit(form) {
+  onSubmit(formulario) {
     // console.log(form.value);
     // console.log(this.usuario);
 
-    this.http.post(`https://httpbin.org/post`, JSON.stringify(form.value)).subscribe(
-      data => console.log(data),
+    this.http.post(`https://httpbin.org/post`, JSON.stringify(formulario.value)).subscribe(
+      data => {
+        console.log(data);
+        formulario.form.reset();
+      },
       error => console.log(error)
     );
   }
