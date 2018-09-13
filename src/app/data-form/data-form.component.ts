@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
   FormGroup,
   FormBuilder,
@@ -8,7 +9,6 @@ import {
 
 import { DropdownService } from '../shared/service/dropdown.service';
 import { EstadoBr } from './../shared/models/estado-br';
-import { Subscription } from 'rxjs';
 import { ConsultCepService } from '../shared/service/consult-cep.service';
 
 @Component({
@@ -18,9 +18,10 @@ import { ConsultCepService } from '../shared/service/consult-cep.service';
 })
 export class DataFormComponent implements OnInit {
   formulario: FormGroup;
-  estados: EstadoBr[];
+  // estados: EstadoBr[];
+  estados: Observable<EstadoBr[]>;
+  cargos: any[];
 
-  inscricao: Subscription;
   constructor(
     private formBuilder: FormBuilder,
     private http: HttpClient,
@@ -44,14 +45,25 @@ export class DataFormComponent implements OnInit {
         bairro: [null, [Validators.required]],
         cidade: [null, [Validators.required]],
         estado: [null, [Validators.required]]
-      })
+      }),
+      cargo: [null]
     });
-
-    this.inscricao = this.dropdownService
+    /*
+    this.dropdownService
       .getEstadosBr()
       .subscribe((data: EstadoBr[]) => {
         this.estados = data;
-      });
+      });*/
+    this.estados = this.dropdownService.getEstadosBr();
+
+    this.cargos = this.dropdownService.getCargos();
+  }
+  setarCargo() {
+    const cargo = { nome: 'Dev', nivel: 'Pleno', desc: 'Dev Pl'};
+    this.formulario.get('cargo').setValue(cargo);
+  }
+  compararCargo(obj1, obj2) {
+    return obj1 && obj2 ? (obj1.nome === obj2.nome && obj1.nivel === obj2.nivel) : obj1 === obj2 ;
   }
   onSubmit() {
     console.log(this.formulario.value);
