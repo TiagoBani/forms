@@ -8,6 +8,7 @@ import { FormDebugComponent } from './form-debug/form-debug.component';
 import { DropdownService } from './service/dropdown.service';
 import { ConsultCepService } from './service/consult-cep.service';
 import { ErrorMsgComponent } from './error-msg/error-msg.component';
+import { InputFieldComponent } from './input-field/input-field.component';
 
 @NgModule({
   imports: [
@@ -19,12 +20,14 @@ import { ErrorMsgComponent } from './error-msg/error-msg.component';
   declarations: [
     FormDebugComponent,
     CampoControlErroComponent,
-    ErrorMsgComponent
+    ErrorMsgComponent,
+    InputFieldComponent
   ],
   exports: [
     FormDebugComponent,
     CampoControlErroComponent,
-    ErrorMsgComponent
+    ErrorMsgComponent,
+    InputFieldComponent
   ],
   providers: [
     DropdownService,

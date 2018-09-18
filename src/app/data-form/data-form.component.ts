@@ -1,9 +1,9 @@
 import { VerificaEmailService } from './services/verifica-email.service';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, empty } from 'rxjs';
 import {FormGroup, FormBuilder, Validators, FormControl} from '@angular/forms';
-import { map } from 'rxjs/operators';
+import { map, tap, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 import { DropdownService } from '../shared/service/dropdown.service';
 import { EstadoBr } from './../shared/models/estado-br';
@@ -41,7 +41,7 @@ export class DataFormComponent implements OnInit {
     // this.verificaEmailService.verificarEmail('email@email.com').subscribe();
 
     this.formulario = this.formBuilder.group({
-      nome: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(5)]],
+      nome: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(35)]],
       email: [null, [Validators.required, Validators.email], [this.validarEmail.bind(this)]],
       confirmarEmail: [null, [FormValidations.equalsTo('email')]],
       endereco: this.formBuilder.group({
@@ -59,6 +59,17 @@ export class DataFormComponent implements OnInit {
       termos: [null, Validators.pattern('true')],
       frameworks: this.buildFrameworks()
     });
+    this.formulario.get('endereco.cep').statusChanges
+      .pipe(
+        distinctUntilChanged(),
+        tap(value => console.log('status CEP:', value)),
+        switchMap(status => status === 'VALID' ?
+          this.cepService.consultaCEP(this.formulario.get('endereco.cep').value)
+          : empty()
+        )
+      )
+      .subscribe( data => data ? this.populaDadosForm(data) : {} );
+
     /*
     this.dropdownService
       .getEstadosBr()
