@@ -10,6 +10,7 @@ import { EstadoBr } from './../shared/models/estado-br';
 import { ConsultCepService } from '../shared/service/consult-cep.service';
 import { FormValidations } from '../shared/form-validations';
 import { BaseFormComponent } from '../shared/base-form/base-form.component';
+import { Cidade } from '../shared/models/cidade';
 
 @Component({
   selector: 'app-data-form',
@@ -19,8 +20,9 @@ import { BaseFormComponent } from '../shared/base-form/base-form.component';
 export class DataFormComponent extends BaseFormComponent implements OnInit {
 
   // formulario: FormGroup;
-  // estados: EstadoBr[];
-  estados: Observable<EstadoBr[]>;
+  cidades: Cidade[];
+  estados: EstadoBr[];
+  // estados: Observable<EstadoBr[]>;
   cargos: any[];
   tecnologias: any[];
   newsletterOp: any[];
@@ -74,13 +76,22 @@ export class DataFormComponent extends BaseFormComponent implements OnInit {
       )
       .subscribe( data => data ? this.populaDadosForm(data) : {} );
 
-    /*
     this.dropdownService
       .getEstadosBr()
       .subscribe((data: EstadoBr[]) => {
         this.estados = data;
-      });*/
-    this.estados = this.dropdownService.getEstadosBr();
+      });
+    // this.estados = this.dropdownService.getEstadosBr();
+    // this.dropdownService.getCidades(8).subscribe(console.log);
+    this.formulario.get('endereco.estado').valueChanges
+      .pipe(
+        tap(estado => console.log('Novo estado: ', estado)),
+        map(estado => this.estados.filter( e => e.sigla === estado )),
+        map(estados => estados && estados.length > 0 ? estados[0].id : empty()),
+        switchMap((estadoId: number) => this.dropdownService.getCidades(estadoId)),
+        tap(console.log)
+      )
+      .subscribe((cidades: Cidade[]) => this.cidades = cidades);
 
     this.cargos = this.dropdownService.getCargos();
     this.tecnologias = this.dropdownService.getTecnologias();
